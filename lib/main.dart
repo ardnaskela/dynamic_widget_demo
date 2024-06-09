@@ -1,10 +1,18 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:json_dynamic_widget/json_dynamic_widget.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  UserCredential userCredential =
+      await FirebaseAuth.instance.signInAnonymously();
   WidgetsFlutterBinding.ensureInitialized();
 
   final navigatorKey = GlobalKey<NavigatorState>();
@@ -86,10 +94,12 @@ void main() {
   });
 
   registry.setValue('customRect', Rect.largest);
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -97,12 +107,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: DynamicText());
+        home: const DynamicText());
   }
 }
 
 class DynamicText extends StatefulWidget {
-  final url = 'https://api.npoint.io/2d23c7fa93461cea9ca8';
+  const DynamicText({super.key});
 
   @override
   _DynamicTextState createState() => _DynamicTextState();
@@ -132,6 +142,9 @@ class _DynamicTextState extends State<DynamicText> {
   }
 
   Future<http.Response> _getWidget() async {
-    return http.get(Uri.parse(widget.url));
+    String downloadURL = await FirebaseStorage.instance
+        .ref('dynamic_widgets/demo_widget.json')
+        .getDownloadURL();
+    return http.get(Uri.parse(downloadURL));
   }
 }
