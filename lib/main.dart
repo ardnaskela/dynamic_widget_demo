@@ -145,6 +145,7 @@ class _DynamicTextState extends State<DynamicText> {
     String downloadURL = await FirebaseStorage.instance
         .ref('dynamic_widgets/demo_widget.json')
         .getDownloadURL();
+
     return http.get(Uri.parse(downloadURL));
   }
 }
